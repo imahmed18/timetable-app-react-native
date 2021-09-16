@@ -1,12 +1,20 @@
-import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import * as FileSystem from "expo-file-system";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Network from "expo-network";
 
 const PATH_URL =
   "https://github.com/imahmed18/timetable-file/raw/main/timetable.xlsx";
 
 export default function SettingsScreen({ navigation }) {
+  const [isLoading, setIsLoading] = useState(false);
   const removeData = async (value) => {
     try {
       await AsyncStorage.removeItem(value);
@@ -18,36 +26,44 @@ export default function SettingsScreen({ navigation }) {
   };
 
   function refreshFunction(e) {
-    e.preventDefault();
-    console.log(e);
-    FileSystem.deleteAsync(
-      FileSystem.documentDirectory + "mytimetable.xlsx"
-    ).then(() => {
-      console.log("file deleted");
-      removeData("courses").then(() => {
-        console.log("local storage cleared");
-        FileSystem.getInfoAsync(
+    Network.getNetworkStateAsync().then((res) => {
+      if (!res.isConnected || !res.isInternetReachable) {
+        alert("Please connect to the internet to download timetable");
+      } else {
+        setIsLoading(true);
+        FileSystem.deleteAsync(
           FileSystem.documentDirectory + "mytimetable.xlsx"
-        ).then((temp) => {
-          if (!temp.exists) {
-            FileSystem.downloadAsync(
-              PATH_URL,
+        ).then(() => {
+          console.log("file deleted");
+          removeData("courses").then(() => {
+            console.log("local storage cleared");
+            FileSystem.getInfoAsync(
               FileSystem.documentDirectory + "mytimetable.xlsx"
-            )
-              .then(({ uri }) => {
-                console.log("Finished downloading to ", uri);
-                alert("timetable updated");
-              })
-              .catch((error) => {
-                console.error(error);
-              });
-          } else {
-            console.log("file already present");
-          }
+            ).then((temp) => {
+              if (!temp.exists) {
+                FileSystem.downloadAsync(
+                  PATH_URL,
+                  FileSystem.documentDirectory + "mytimetable.xlsx"
+                )
+                  .then(({ uri }) => {
+                    setIsLoading(false);
+                    console.log("Finished downloading to ", uri);
+                    alert("timetable updated");
+                  })
+                  .catch((error) => {
+                    setIsLoading(false);
+                    console.error(error);
+                  });
+              } else {
+                console.log("file already present");
+              }
+            });
+          });
         });
-      });
+      }
     });
   }
+
   return (
     <View style={styles.container}>
       <Text
@@ -95,6 +111,24 @@ export default function SettingsScreen({ navigation }) {
           </Text>
         </View>
       </TouchableOpacity>
+      {isLoading && (
+        <View
+          style={{
+            display: "flex",
+            backgroundColor: "black",
+            opacity: 0.5,
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <ActivityIndicator size="large" />
+        </View>
+      )}
     </View>
   );
 }

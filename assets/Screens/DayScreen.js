@@ -5,6 +5,7 @@ import {
   View,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import ClassCard from "../Cards/ClassCard";
 import * as FileSystem from "expo-file-system";
@@ -16,7 +17,8 @@ export default function DayScreen({ route, navigation }) {
   var classes = [];
   var customCourses = [];
   const [dat, setDat] = useState([]);
-  const [customTimetable, setCustomTimetable] = useState([]);
+  const [isCustom, setIsCustom] = useState(true);
+  const [isEmpty, setIsEmpty] = useState(true);
   useLayoutEffect(() => {
     console.log("in " + route.params.day + "screen");
     navigation.setOptions({ title: route.params.day });
@@ -82,11 +84,15 @@ export default function DayScreen({ route, navigation }) {
               }
             }
             setDat(classes);
+            if (dat.length === 0) {
+              setIsCustom(false);
+            }
           })
           .catch((err) => {
             console.log(err);
           });
       } else {
+        setIsEmpty(false);
         console.log("no classes selected");
       }
     });
@@ -195,37 +201,45 @@ export default function DayScreen({ route, navigation }) {
   }
   return (
     <View style={styles.container}>
-      <ScrollView
-        style={{
-          width: "100%",
-        }}
-      >
-        {/* <ClassCard course="Ahmed" room="R-11" time="10:00" /> */}
+      {/* <ClassCard course="Ahmed" room="R-11" time="10:00" /> */}
 
-        {dat.length !== 0 ? (
-          dat?.map((lecture, index) => {
+      {dat.length !== 0 ? (
+        <ScrollView
+          style={{
+            width: "100%",
+          }}
+        >
+          {dat?.map((lecture, index) => {
+            // str = lecture.class;
+            // str = str.replace(/\s+/g, " ");
+            // str3 = str.split(" ");
+            // str2 = str.split(" ");
+            // str2.splice(0, 1);
+            // str2 = str2.join(" ");
+            // console.log(str2 + "\n");
             return (
               <TouchableOpacity key={index}>
                 <ClassCard
                   course={lecture.class}
+                  // teacher={str2}
                   room={lecture.room}
                   time={lecture.time}
                 />
               </TouchableOpacity>
             );
-          })
-        ) : (
-          <View style={styles.container}>
-            <Text
-              style={{
-                color: "white",
-              }}
-            >
-              LOADING...
-            </Text>
-          </View>
-        )}
-      </ScrollView>
+          })}
+        </ScrollView>
+      ) : (
+        <View style={styles.activityContainer}>
+          {isCustom === false || isEmpty === false ? (
+            <Text>No classes scheduled for today</Text>
+          ) : (
+            <View>
+              <ActivityIndicator size="large" />
+            </View>
+          )}
+        </View>
+      )}
     </View>
   );
 }
@@ -236,5 +250,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#243447",
     alignItems: "center",
     justifyContent: "center",
+  },
+  activityContainer: {
+    display: "flex",
+    flexDirection: "column",
   },
 });

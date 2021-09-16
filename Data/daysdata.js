@@ -1,1 +1,8 @@
-export const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+export const days = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];

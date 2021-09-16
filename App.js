@@ -9,6 +9,7 @@ import {
 import { NavigationContainer } from "@react-navigation/native";
 import Tabs from "./TabNavigation/Tab";
 import * as FileSystem from "expo-file-system";
+import * as Network from "expo-network";
 
 const PATH_URL =
   "https://github.com/imahmed18/timetable-file/raw/main/timetable.xlsx";
@@ -23,17 +24,24 @@ export default function App() {
     FileSystem.getInfoAsync(
       FileSystem.documentDirectory + "mytimetable.xlsx"
     ).then((temp) => {
+      console.log(temp);
       if (!temp.exists) {
-        FileSystem.downloadAsync(
-          PATH_URL,
-          FileSystem.documentDirectory + "mytimetable.xlsx"
-        )
-          .then(({ uri }) => {
-            console.log("Finished downloading to ", uri);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
+        Network.getNetworkStateAsync().then((res) => {
+          if (!res.isConnected || !res.isInternetReachable) {
+            alert("Please connect to the internet to download timetable");
+          } else {
+            FileSystem.downloadAsync(
+              PATH_URL,
+              FileSystem.documentDirectory + "mytimetable.xlsx"
+            )
+              .then(({ uri }) => {
+                console.log("Finished downloading to ", uri);
+              })
+              .catch((error) => {
+                console.error(error);
+              });
+          }
+        });
       } else {
         console.log("file already present");
       }

@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "timetable-v2",
-    "slug": "timetable-v2",
+    "name": "timetable",
+    "slug": "timetable",
     "version": "1.0.0",
+    "owner": "personal_organisation",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -27,6 +28,7 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "description": "Timetable app built specifically for fast university"
   }
 }

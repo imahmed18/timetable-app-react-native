@@ -8,6 +8,9 @@ function ClassCard(props) {
         <Text style={{ fontSize: 30, fontWeight: "200", color: "white" }}>
           {props.course}
         </Text>
+        {/* <Text style={{ fontSize: 30, fontWeight: "200", color: "white" }}>
+          {props.teacher}
+        </Text> */}
         <View
           style={{
             display: "flex",
